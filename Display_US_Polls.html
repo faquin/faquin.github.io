@@ -1,0 +1,76 @@
+<html>
+<head>
+    <title>Particle Login Example</title>
+</head>
+
+<body>
+	
+	<button type="button" onclick="fetchGOP()">fetch GOP</button>
+    <button type="button" onclick="fetchDEM()">fetch DEM</button><br>
+	
+	<div id="PollValue"></div>
+
+<script src="http://cdn.jsdelivr.net/sparkjs/1/spark.min.js"></script>
+<script>
+    var token = '8e7b321b228262437ad81b85ba5dba4765b90dda';
+	
+	function fetchGOP(){
+		var publishEventPr = spark.publishEvent('get_gop_poll');
+		publishEventPr.then(
+			function(data) {
+			  //if (data.ok) { console.log("Event get_gop_poll published succesfully"); }
+			},
+			function(err) {
+			  console.log("Failed to publish event: " + err);
+			}
+		);
+	}
+
+	function fetchDEM(){
+		var publishEventPr = spark.publishEvent('get_dem_poll');
+		publishEventPr.then(
+			function(data) {
+			  //if (data.ok) { console.log("Event get_dem_poll published succesfully"); }
+			},
+			function(err) {
+			  console.log("Failed to publish event: " + err);
+			}
+		);
+	}
+  
+	
+	
+    spark.on('login', function() {
+        
+        spark.getEventStream(false, 'mine', function(data) {
+			//message=JSON.stringify(data);
+            //console.log("Message: " + message);
+			if(data.name.indexOf("hook-response/get_gop_poll") !== -1){ // if get_gop_poll data received
+				console.log("GOP poll: " + data.data);
+				document.getElementById("PollValue").innerHTML = "GOP: "+data.data;
+				var arrayResults = data.data.split("~~");
+				for(i=0;  i<arrayResults.length; i++){
+					candidate = arrayResults[i].split("~");
+					console.log(candidate[0] + " " + candidate[1]);
+				}
+			}
+			else if(data.name.indexOf("hook-response/get_dem_poll") !== -1){ // if get_dem_poll data received
+				console.log("DEM poll: " + data.data);
+				document.getElementById("PollValue").innerHTML = "DEM: "+data.data;
+				var arrayResults = data.data.split("~~");
+				for(i=0;  i<arrayResults.length; i++){
+					candidate = arrayResults[i].split("~");
+					console.log(candidate[0] + " " + candidate[1]);
+				}
+			}
+        });
+		
+	
+        
+    });
+    // Login as usual
+    //spark.login({ username: 'email@example.com', password: 'password'});
+    spark.login({ accessToken: token });
+</script>
+</body>
+</html>
