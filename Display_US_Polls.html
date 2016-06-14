@@ -7,6 +7,7 @@
 	
 	<button type="button" onclick="fetchGOP()">fetch GOP</button>
     <button type="button" onclick="fetchDEM()">fetch DEM</button><br>
+    <button type="button" onclick="fetchUS()">fetch US</button><br>
 	
 	<div id="PollValue"></div>
 
@@ -37,6 +38,18 @@
 			}
 		);
 	}
+	
+	function fetchUS(){
+		var publishEventPr = spark.publishEvent('get_US_poll');
+		publishEventPr.then(
+			function(data) {
+			  //if (data.ok) { console.log("Event get_dem_poll published succesfully"); }
+			},
+			function(err) {
+			  console.log("Failed to publish event: " + err);
+			}
+		);
+	}
   
 	
 	
@@ -57,6 +70,15 @@
 			else if(data.name.indexOf("hook-response/get_dem_poll") !== -1){ // if get_dem_poll data received
 				console.log("DEM poll: " + data.data);
 				document.getElementById("PollValue").innerHTML = "DEM: "+data.data;
+				var arrayResults = data.data.split("~~");
+				for(i=0;  i<arrayResults.length; i++){
+					candidate = arrayResults[i].split("~");
+					console.log(candidate[0] + " " + candidate[1]);
+				}
+			}
+			else if(data.name.indexOf("hook-response/get_US_poll") !== -1){ // if get_dem_poll data received
+				console.log("US poll: " + data.data);
+				document.getElementById("PollValue").innerHTML = "US: "+data.data;
 				var arrayResults = data.data.split("~~");
 				for(i=0;  i<arrayResults.length; i++){
 					candidate = arrayResults[i].split("~");
