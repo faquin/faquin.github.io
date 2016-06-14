@@ -6,7 +6,7 @@
 <body>
 	
 	<button type="button" onclick="fetchGOP()">fetch GOP</button>
-    <button type="button" onclick="fetchDEM()">fetch DEM</button><br>
+    <button type="button" onclick="fetchDEM()">fetch DEM</button>
     <button type="button" onclick="fetchUS()">fetch US</button><br>
 	
 	<div id="PollValue"></div>
@@ -15,18 +15,13 @@
 <script>
 
 // function to decode the parameter in the url
-$.urlParam = function(name){
-    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
-    if (results==null){
-       return null;
-    }
-    else{
-       return results[1] || 0;
-    }
+function getUrlVar(key){
+	var result = new RegExp(key + "=([^&]*)", "i").exec(window.location.search); 
+	return result && result[1] || ""; 
 }
 
     //var token = '8e7b321b228262437ad81b85ba5dba4765b90dda';
-    var token = $.urlParam('access_token');
+    var token = getUrlVar('access_token');
 	
 	function fetchGOP(){
 		var publishEventPr = spark.publishEvent('get_gop_poll');
