@@ -13,7 +13,20 @@
 
 <script src="https://cdn.jsdelivr.net/sparkjs/1/spark.min.js"></script>
 <script>
-    var token = '8e7b321b228262437ad81b85ba5dba4765b90dda';
+
+// function to decode the parameter in the url
+$.urlParam = function(name){
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+    if (results==null){
+       return null;
+    }
+    else{
+       return results[1] || 0;
+    }
+}
+
+    //var token = '8e7b321b228262437ad81b85ba5dba4765b90dda';
+    var token = $.urlParam('access_token');
 	
 	function fetchGOP(){
 		var publishEventPr = spark.publishEvent('get_gop_poll');
