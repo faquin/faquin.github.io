@@ -1,105 +1,139 @@
 <html>
-<head>
-    <title>Particle Login Example</title>
-</head>
-
-<body>
-	
-	<button type="button" onclick="fetchGOP()">fetch GOP</button>
-    <button type="button" onclick="fetchDEM()">fetch DEM</button>
-    <button type="button" onclick="fetchUS()">fetch US</button><br>
-	
-	<div id="PollValue"></div>
-
-<script src="https://cdn.jsdelivr.net/sparkjs/1/spark.min.js"></script>
-<script>
-
-// function to decode the parameter in the url
-function getUrlVar(key){
-	var result = new RegExp(key + "=([^&]*)", "i").exec(window.location.search); 
-	return result && result[1] || ""; 
-}
-
-    var token = getUrlVar('access_token');
-	
-	function fetchGOP(){
-		var publishEventPr = spark.publishEvent('get_gop_poll');
-		publishEventPr.then(
-			function(data) {
-			  //if (data.ok) { console.log("Event get_gop_poll published succesfully"); }
-			},
-			function(err) {
-			  console.log("Failed to publish event: " + err);
-			}
-		);
-	}
-
-	function fetchDEM(){
-		var publishEventPr = spark.publishEvent('get_dem_poll');
-		publishEventPr.then(
-			function(data) {
-			  //if (data.ok) { console.log("Event get_dem_poll published succesfully"); }
-			},
-			function(err) {
-			  console.log("Failed to publish event: " + err);
-			}
-		);
-	}
-	
-	function fetchUS(){
-		var publishEventPr = spark.publishEvent('get_US_poll');
-		publishEventPr.then(
-			function(data) {
-			  //if (data.ok) { console.log("Event get_dem_poll published succesfully"); }
-			},
-			function(err) {
-			  console.log("Failed to publish event: " + err);
-			}
-		);
-	}
-  
-	
-	
-    spark.on('login', function() {
-        
-        spark.getEventStream(false, 'mine', function(data) {
-			//message=JSON.stringify(data);
-            //console.log("Message: " + message);
-			if(data.name.indexOf("hook-response/get_gop_poll") !== -1){ // if get_gop_poll data received
-				console.log("GOP poll: " + data.data);
-				document.getElementById("PollValue").innerHTML = "GOP: "+data.data;
-				var arrayResults = data.data.split("~~");
-				for(i=0;  i<arrayResults.length; i++){
-					candidate = arrayResults[i].split("~");
-					console.log(candidate[0] + " " + candidate[1]);
-				}
-			}
-			else if(data.name.indexOf("hook-response/get_dem_poll") !== -1){ // if get_dem_poll data received
-				console.log("DEM poll: " + data.data);
-				document.getElementById("PollValue").innerHTML = "DEM: "+data.data;
-				var arrayResults = data.data.split("~~");
-				for(i=0;  i<arrayResults.length; i++){
-					candidate = arrayResults[i].split("~");
-					console.log(candidate[0] + " " + candidate[1]);
-				}
-			}
-			else if(data.name.indexOf("hook-response/get_US_poll") !== -1){ // if get_dem_poll data received
-				console.log("US poll: " + data.data);
-				document.getElementById("PollValue").innerHTML = "US: "+data.data;
-				var arrayResults = data.data.split("~~");
-				for(i=0;  i<arrayResults.length; i++){
-					candidate = arrayResults[i].split("~");
-					console.log(candidate[0] + " " + candidate[1]);
-				}
-			}
-        });
+	<head>
+		<title>Particle Login Example</title>
+	</head>
+	<body>
+		<button type="button" onclick="fetchGOP()">fetch GOP</button>
+		<button type="button" onclick="fetchDEM()">fetch DEM</button>
+		<button type="button" onclick="fetchUS()">fetch US</button><br>
+		<div id="PollValue"></div>
+		<!--Div that will hold the pie chart-->
+		<div id="chart_div" style="width:400; height:300"></div>
 		
-	
-        
-    });
-    // Login as usual
-    //spark.login({ username: 'email@example.com', password: 'password'});
-    spark.login({ accessToken: token });
-</script>
-</body>
+		
+		<script src="https://cdn.jsdelivr.net/sparkjs/1/spark.min.js"></script>
+		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+		<script type="text/javascript">
+		
+			var candidate = [];
+		
+			// Load the Visualization API and the piechart package.
+			google.load('visualization', '1.0', {'packages':['corechart']});
+			// Set a callback to run when the Google Visualization API is loaded.
+			//google.setOnLoadCallback(drawChart);
+			// Callback that creates and populates a data table, 
+			// instantiates the pie chart, passes in the data and
+			// draws it.
+			function drawChart() {
+				// Create the data table.
+				var data = new google.visualization.DataTable();
+				data.addColumn('string', 'Candidate');
+				data.addColumn('number', 'Percentage');
+				data.addRows([
+					[candidate[0][0], candidate[0][1]],
+					[candidate[1][0], candidate[1][1]],
+					[candidate[2][0], candidate[2][1]]
+				]);
+				
+				// Set chart options
+				var options = {'title':'Who will be the next president?',
+							   'width':400,
+							   'height':300};
+				// Instantiate and draw our chart, passing in some options.
+				var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+				chart.draw(data, options);
+			}
+		
+			// function to decode the parameter in the url
+			function getUrlVar(key){
+				var result = new RegExp(key + "=([^&]*)", "i").exec(window.location.search); 
+				return result && result[1] || ""; 
+			}
+			    var token = getUrlVar('access_token');
+				
+				function fetchGOP(){
+					var publishEventPr = spark.publishEvent('get_gop_poll');
+					publishEventPr.then(
+						function(data) {
+						  //if (data.ok) { console.log("Event get_gop_poll published succesfully"); }
+						},
+						function(err) {
+						  console.log("Failed to publish event: " + err);
+						}
+					);
+				}
+				function fetchDEM(){
+					var publishEventPr = spark.publishEvent('get_dem_poll');
+					publishEventPr.then(
+						function(data) {
+						  //if (data.ok) { console.log("Event get_dem_poll published succesfully"); }
+						},
+						function(err) {
+						  console.log("Failed to publish event: " + err);
+						}
+					);
+				}
+				
+				function fetchUS(){
+					var publishEventPr = spark.publishEvent('get_US_poll');
+					publishEventPr.then(
+						function(data) {
+						  //if (data.ok) { console.log("Event get_US_poll published succesfully"); }
+						},
+						function(err) {
+						  console.log("Failed to publish event: " + err);
+						}
+					);
+				}
+			  
+				
+				
+			    spark.on('login', function() {
+			        
+			        spark.getEventStream(false, 'mine', function(data) {
+						//message=JSON.stringify(data);
+						if(data.name.indexOf("hook-response/get_gop_poll") !== -1){ // if get_gop_poll data received
+							console.log("GOP poll: " + data.data);
+							document.getElementById("PollValue").innerHTML = "GOP: "+data.data;
+							var arrayResults = data.data.split("~~");
+							for(i=0;  i<arrayResults.length; i++){
+								candidate = arrayResults[i].split("~");
+								console.log(candidate[0] + " " + candidate[1]);
+							}
+						}
+						else if(data.name.indexOf("hook-response/get_dem_poll") !== -1){ // if get_dem_poll data received
+							console.log("DEM poll: " + data.data);
+							document.getElementById("PollValue").innerHTML = "DEM: "+data.data;
+							var arrayResults = data.data.split("~~");
+							for(i=0;  i<arrayResults.length; i++){
+								candidate = arrayResults[i].split("~");
+								console.log(candidate[0] + " " + candidate[1]);
+							}
+						}
+						else if(data.name.indexOf("hook-response/get_US_poll") !== -1){ // if get_dem_poll data received
+							console.log("US poll: " + data.data);
+							//document.getElementById("PollValue").innerHTML = "US: "+data.data;
+							document.getElementById("PollValue").innerHTML = "";
+							var arrayResults = data.data.split("~~");
+							for(i=0;  i<arrayResults.length; i++){
+								candidate[i] = arrayResults[i].split("~");
+								console.log(candidate[i][0] + " " + candidate[i][1]);
+								candidate[i][1]=Number(candidate[i][1]); // convert from sting to number for pie chart display
+							}
+							drawChart(); // call for pie chart drawing
+						}
+			        });
+
+			        
+			    });
+		
+			    // Login as usual
+			    //spark.login({ username: 'email@example.com', password: 'password'});
+			    spark.login({ accessToken: token });
+		
+		</script>
+		
+		
+		
+	</body>
 </html>
