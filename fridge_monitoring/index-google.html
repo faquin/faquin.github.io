@@ -52,8 +52,7 @@
 	
 		if (p)
 		{
-			//p = Math.round((p / 1023) * 100);
-			p = Math.round(p);
+			p = Math.round(p*10)/10; // arrondi à un chiffre après la virgule
 			displayData(p);
 		}
 	
