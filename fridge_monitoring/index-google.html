@@ -34,7 +34,7 @@
 
 	function displayData(point) {
 	
-		data.setValue(0, 0, 'Light Level');
+		data.setValue(0, 0, 'Frigo');
 		data.setValue(0, 1, point);
 		chart.draw(data, options);
 	
@@ -52,7 +52,8 @@
 	
 		if (p)
 		{
-			p = Math.round((p / 1023) * 100);
+			//p = Math.round((p / 1023) * 100);
+			p = Math.round(p);
 			displayData(p);
 		}
 	
@@ -68,8 +69,8 @@
 		data.addRows(1);
 	        
 	        chart = new google.visualization.Gauge(document.getElementById('chart_div'));
-	        options = {width: 120, height: 120, redFrom: 90, redTo: 100,
-	            yellowFrom:75, yellowTo: 90, minorTicks: 5};
+	        options = {width: 120, height: 120, redFrom: 7, redTo: 20,
+	            yellowFrom:4, yellowTo: 7, minorTicks: 5, min:-20, max:20};
 	
 		loadData();
 
@@ -78,3 +79,4 @@
 	}
 
 </script>
+
