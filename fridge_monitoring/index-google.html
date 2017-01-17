@@ -1,5 +1,3 @@
-Plugin html
-
 <html>
   <head>
 
@@ -22,8 +20,6 @@ Plugin html
 </style>
 
 
-
-Plugin JavaScript
 
 <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js'></script> 
 <script type='text/javascript' src='https://www.google.com/jsapi'></script>
@@ -49,7 +45,7 @@ Plugin JavaScript
 		// variable for the data point
 		var p;
 	
-		$.getJSON('https://api.thingspeak.com/channels/9/feed/last.json?callback=?', function(data) {
+		$.getJSON('https://api.thingspeak.com/channels/212489/feed/last.json?api_key=E14SPYD5SM19MB62', function(data) {
 		
 		// get the data point
 		p = data.field1;
