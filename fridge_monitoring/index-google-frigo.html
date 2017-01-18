@@ -1,0 +1,100 @@
+<html>
+  <head>
+
+  <title>Temperature Garage - ThingSpeak</title>
+
+    	
+  </head>
+		
+  <body>
+    <div id='chart_div'></div>
+  </body>
+</html>	
+
+
+
+
+
+<style type="text/css">
+  body { background-color: #ddd; }
+</style>
+
+
+
+<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js'></script> 
+<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+<script type='text/javascript'>
+	var chart; 
+	var charts;
+	var data;
+      	google.load('visualization', '1', {packages:['gauge']});
+      	google.setOnLoadCallback(initChart);
+	function displayData(point) {
+	
+		data.setValue(0, 0, 'Garage');
+		data.setValue(0, 1, point);
+		chart.draw(data, options);
+	
+	}
+	function loadData() {
+	
+		// variable for the data point
+		var p1, p2, p2, p4, p5, p6;
+	
+		$.getJSON('https://api.thingspeak.com/channels/215423/feed/last.json?api_key=ZE3W4837810NX5S3', function(data) {
+		
+		// get the data points
+		p1 = data.field1;
+		if (p1)
+		{
+			p1 = Math.round(p1*10)/10; // arrondi à un chiffre après la virgule
+			displayData(p1);
+		}
+    p2 = data.field1;
+		if (p2)
+		{
+			p2 = Math.round(p2*10)/10; // arrondi à un chiffre après la virgule
+			displayData(p2);
+		}
+    p3 = data.field1;
+		if (p3)
+		{
+			p3 = Math.round(p3*10)/10; // arrondi à un chiffre après la virgule
+			displayData(p3);
+		}
+    p4 = data.field1;
+		if (p4)
+		{
+			p4 = Math.round(p4*10)/10; // arrondi à un chiffre après la virgule
+			displayData(p4);
+		}p5 = data.field1;
+		if (p5)
+		{
+			p5 = Math.round(p5*10)/10; // arrondi à un chiffre après la virgule
+			displayData(p5);
+		}
+    p6 = data.field1;
+		if (p6)
+		{
+			p6 = Math.round(p6*10)/10; // arrondi à un chiffre après la virgule
+			displayData(p6);
+		}
+	
+		});
+	
+	}
+	function initChart() {
+		data = new google.visualization.DataTable();
+		data.addColumn('string', 'Label');
+		data.addColumn('number', 'Value');
+		data.addRows(1);
+	        
+	        chart = new google.visualization.Gauge(document.getElementById('chart_div'));
+	        options = {width: 220, height: 220, redFrom: -20, redTo: 0,
+	            yellowFrom:0, yellowTo: 5, minorTicks: 5, min:-20, max:20};
+	
+		loadData();
+		setInterval('loadData()', 15000);
+	        
+	}
+</script>
