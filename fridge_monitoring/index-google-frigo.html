@@ -31,7 +31,7 @@
       	google.setOnLoadCallback(initChart);
 	function displayData(point) {
 	
-		data.setValue(0, 0, 'Garage');
+		data.setValue(0, 0, 'Batterie');
 		data.setValue(0, 1, point);
 		chart.draw(data, options);
 	
@@ -44,36 +44,7 @@
 		$.getJSON('https://api.thingspeak.com/channels/215423/feed/last.json?api_key=ZE3W4837810NX5S3', function(data) {
 		
 		// get the data points
-		p1 = data.field1;
-		if (p1)
-		{
-			p1 = Math.round(p1*10)/10; // arrondi à un chiffre après la virgule
-			displayData(p1);
-		}
-    p2 = data.field1;
-		if (p2)
-		{
-			p2 = Math.round(p2*10)/10; // arrondi à un chiffre après la virgule
-			displayData(p2);
-		}
-    p3 = data.field1;
-		if (p3)
-		{
-			p3 = Math.round(p3*10)/10; // arrondi à un chiffre après la virgule
-			displayData(p3);
-		}
-    p4 = data.field1;
-		if (p4)
-		{
-			p4 = Math.round(p4*10)/10; // arrondi à un chiffre après la virgule
-			displayData(p4);
-		}p5 = data.field1;
-		if (p5)
-		{
-			p5 = Math.round(p5*10)/10; // arrondi à un chiffre après la virgule
-			displayData(p5);
-		}
-    p6 = data.field1;
+		p6 = data.field6;
 		if (p6)
 		{
 			p6 = Math.round(p6*10)/10; // arrondi à un chiffre après la virgule
