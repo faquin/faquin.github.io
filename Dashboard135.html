@@ -1,0 +1,72 @@
+<!DOCTYPE HTML>
+
+ <html>
+<head>
+	<title>Particle Login Example</title>
+</head>
+<body>
+	<script src="https://cdn.jsdelivr.net/particle-api-js/5/particle.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+	<script>
+		/*var particle = new Particle();
+		particle.login({ username: 'fabien.goy@gmail.com', password: '9hL3lDaVy9lU' })
+			.then(function(result) {
+				console.log('Your access token', result.body.access_token);
+			}, function(err) {
+				console.error(err);
+			});*/
+	
+	
+
+		function GetVariables() {
+		document.getElementById("connectbutton").innerHTML = "Running";
+	        var accessToken = document.getElementById('accText').value;
+	        var deviceID = document.getElementById('dvText').value;
+
+           	
+		   
+		//var deviceID = "My Device ID";	//chaudiere=270043000447343232363230
+		//var accessToken = "My Access Token";
+
+		
+		var requestURL1 = "https://api.particle.io/v1/devices/" +deviceID + "/bAlarme?access_token=" + accessToken;
+		$.getJSON(requestURL1, function(json) {
+		document.getElementById("bAlarm").innerHTML = json.result;
+						 });
+			
+			
+		var requestURL2 = "https://api.particle.io/v1/devices/" +deviceID + "/nb_blink?access_token=" + accessToken;
+		$.getJSON(requestURL2, function(json) {
+		document.getElementById("nb_blink").innerHTML = json.result;
+						 });
+			
+		document.getElementById("connectbutton").innerHTML = "GetVariables";
+		}
+		
+		
+		
+		
+		function Chauffage(CmdChauffage) {
+			var deviceID = document.getElementById('dvText').value;
+			var accessToken = document.getElementById('accText').value;
+			var requestURL1 = "https://api.particle.io/v1/devices/" +deviceID + "/TestChauff/";
+			$.post( requestURL1, { params: CmdChauffage, access_token: accessToken});
+		}
+
+	</script>	
+	
+
+	<P>Access Token:<input type="password" size="40" name="accessToken" id="accText" value="6cbe90f1257db4e92543ec032a3577f530401bcb">
+    <br><br>
+    <p>Device ID:<input type="text" size="40" name="deviceID" id="dvText" value="270043000447343232363230">
+    <br><br>
+    <button id="connectbutton" onclick="GetVariables()">Connect</button>
+	
+	<h3>bAlarm: <span id="bAlarm"></h3><br>
+	<h3>nb_blink: <span id="nb_blink"></h3><br>
+	
+	<button id="ChauffageON" onclick="Chauffage(1)">AllumerChauffage</button>
+	<button id="ChauffageOFF" onclick="Chauffage(0)">EteindreChauffage</button>
+	
+</body>
+</html>
