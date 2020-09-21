@@ -4,56 +4,125 @@
 <head>
 	<title>Particle Login Example</title>
 </head>
-<body>
-	<script src="https://cdn.jsdelivr.net/particle-api-js/5/particle.min.js"></script>
+<body onload="loading()">
+	<script src="https://cdn.jsdelivr.net/npm/particle-api-js@8/dist/particle.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
 	<script>
 		
-	
+		//Get you accesstoken from LocalStorage if you've logged in before.
+		var token = localStorage.getItem("token");
+		var particle = new Particle();
+		var logged_in=false;
+		
+		function loading(){
+			if(token){	// on a déjà un token
+				document.getElementById('login-window').style.display="none";	// on cache la fenetre de login
+				document.getElementById("BoutonLogin").innerHTML = "Logout";
+				ListDevices();
+			}
+		}
+		
+		//Delete accesstoken from LocalStorage, and reload page.
+		function logout() {
+			localStorage.removeItem("token");
+			var logged_in=false;
+			window.location.reload();
+		}
+		
+		function login() {
+		 
+		 if(!token){	//si pas encore de token
+			var login=document.getElementById('InputLogin').value;
+			var pass=document.getElementById('InputPassword').value;
+			
+			particle.login({username: login, password: pass}).then(
+			  function(data) {
+				token=data.body.access_token;
+				localStorage.setItem("token",token);
+				console.log(token);
+				ListDevices();
+			  },
+			  function (err) {
+				console.log('Could not log in.', err);
+			  }
+			);
+		
+			var logged_in=true;
+			document.getElementById('login-window').style.display="none";
+			document.getElementById("BoutonLogin").innerHTML = "Logout";
+			
+			}
+			else{
+				logout();
+			}
+
+		}
+		
+		function ListDevices(){
+			var devicesPr = particle.listDevices({ auth: token });
+				console.log(devicesPr);
+		
+		}
 	
 
 		function GetVariables() {
-		document.getElementById("connectbutton").innerHTML = "Running";
+			document.getElementById("connectbutton").innerHTML = "Running";
 	        var accessToken = document.getElementById('accText').value;
 	        var deviceID = document.getElementById('dvText').value;
 
            	
-		   
-		//var deviceID = "My Device ID";	//chaudiere=270043000447343232363230
-		//var accessToken = "My Access Token";
+			   
+			//var deviceID = "My Device ID";	//chaudiere=270043000447343232363230
+			//var accessToken = "My Access Token";
 
-		
-		var requestURL1 = "https://api.particle.io/v1/devices/" +deviceID + "/bAlarme?access_token=" + accessToken;
-		$.getJSON(requestURL1, function(json) {
-		document.getElementById("bAlarm").innerHTML = json.result;
-						 });
 			
-			
-		var requestURL2 = "https://api.particle.io/v1/devices/" +deviceID + "/nb_blink?access_token=" + accessToken;
-		$.getJSON(requestURL2, function(json) {
-		document.getElementById("nb_blink").innerHTML = json.result;
-						 });
-			
-		document.getElementById("connectbutton").innerHTML = "GetVariables";
+			var requestURL1 = "https://api.particle.io/v1/devices/" +deviceID + "/bAlarme?token=" + accessToken;
+			$.getJSON(requestURL1, function(json) {
+			document.getElementById("bAlarm").innerHTML = json.result;
+							 });
+				
+				
+			var requestURL2 = "https://api.particle.io/v1/devices/" +deviceID + "/nb_blink?token=" + accessToken;
+			$.getJSON(requestURL2, function(json) {
+			document.getElementById("nb_blink").innerHTML = json.result;
+							 });
+				
+			document.getElementById("connectbutton").innerHTML = "GetVariables";
 		}
 		
 		
 		
 		
 		function Chauffage(CmdChauffage) {
-			var deviceID = document.getElementById('dvText').value;
-			var accessToken = document.getElementById('accText').value;
-			var requestURL1 = "https://api.particle.io/v1/devices/" +deviceID + "/TestChauff/";
-			$.post( requestURL1, { params: CmdChauffage, access_token: accessToken});
+			var fnPr = particle.callFunction({ deviceId: '270043000447343232363230', name: 'TestChauff', argument: toString(CmdChauffage), auth: token });
+
+			fnPr.then(
+			  function(data) {
+				console.log('Chauffage=', data);
+			  }, function(err) {
+				console.log('Chauffage pas changé:', err);
+			  });
+			//var requestURL1 = "https://api.particle.io/v1/devices/" +deviceID + "/TestChauff/";
+			//$.post( requestURL1, { params: CmdChauffage, token: accessToken});
 		}
 
 	</script>	
 	
+	<form id="login-window">
+	  <div class="w-25 form-group p-3">
+		<label for="InputLogin">Login</label>
+		<input type="login" class="form-control" id="InputLogin" aria-describedby="InputLogin" placeholder="login" value="">
+		<label for="InputPassword">Password</label>
+		<input type="password" class="form-control" id="InputPassword" placeholder="Password" value="">
+	  </div>
+	</form>
+	<button type="submit" id="BoutonLogin" class="btn btn-primary" onclick="login()">Login</button>
+	
+	<br><br>
 
-	<P>Access Token:<input type="password" size="40" name="accessToken" id="accText" value="6cbe90f1257db4e92543ec032a3577f530401bcb">
-    <br><br>
-    <p>Device ID:<input type="text" size="40" name="deviceID" id="dvText" value="270043000447343232363230">
-    <br><br>
+	
     <button id="connectbutton" onclick="GetVariables()">Connect</button>
 	
 	<h3>bAlarm: <span id="bAlarm"></h3><br>
