@@ -61,36 +61,65 @@
 		}
 		
 		function ListDevices(){
-			var devicesPr = particle.listDevices({ auth: token });
-				console.log(devicesPr);
-		
+			particle.listDevices({ auth: token }).then(
+				function(data){
+					//console.log(data);
+					for(var ii = 0; ii < data.body.length; ii++) {
+						var dev = data.body[ii];
+						//console.log("dev ii=" + ii, dev);
+						
+						// The entries that come back have the following things in dev:
+						// cellular: false
+						// connected: true
+						// id: "<yourdeviceid>"
+						// last_app: null
+						// last_heard: "2016-03-18T18:11:36.183Z"
+						// last_ip_address: "<youripaddress>"
+						// name: "test4"
+						// platform_id: 6
+						// product_id: 6
+						// status: "normal"
+						
+						if (dev.connected) {
+							console.log(dev.name, dev.id, "is connected");
+							console.log(dev);
+							var newHTML="<div class=\"card text-white bg-info mb-3\"><div class=\"card-body\"> <h5 class=\"card-title\">"+dev.name+"</h5>";
+							
+							// variables
+							if(Object.keys(dev.variables).length>0){
+								newHTML += "<div class=\"container\">";
+								for(i=0; i<Object.keys(dev.variables).length; i++){
+									newHTML += "<div class=\"row\"><div class=\"col-sm\">"+Object.keys(dev.variables)[i]+"</div>";
+									//newHTML += "<div class=\"col-sm\">VALEUR</div>";
+									newHTML += "</div>";
+								}
+								newHTML += "</div>";	// fin du container de la ligne
+							}
+							
+							
+							// fonctions
+							newHTML += "<div class=\"container\">";
+							for(i=0; i<dev.functions.length; i++){
+									newHTML += "<div class=\"row\"><div class=\"col-sm\"><button type=\"button\" class=\"btn btn-primary\">"+dev.functions[i]+"()</button></div>";
+									//newHTML += "<div class=\"col-sm\">VALEUR</div>";
+									newHTML += "</div>";
+								}
+								newHTML += "</div>";	// fin du container de la ligne
+							
+							newHTML += "</div> </div>";
+
+							$("div.card-deck").append(newHTML);
+						}
+					}
+				},
+				function(err){
+					console.log('Could not get devices.', err);
+				}
+			);
 		}
 	
 
-		function GetVariables() {
-			document.getElementById("connectbutton").innerHTML = "Running";
-	        var accessToken = document.getElementById('accText').value;
-	        var deviceID = document.getElementById('dvText').value;
-
-           	
-			   
-			//var deviceID = "My Device ID";	//chaudiere=270043000447343232363230
-			//var accessToken = "My Access Token";
-
-			
-			var requestURL1 = "https://api.particle.io/v1/devices/" +deviceID + "/bAlarme?token=" + accessToken;
-			$.getJSON(requestURL1, function(json) {
-			document.getElementById("bAlarm").innerHTML = json.result;
-							 });
-				
-				
-			var requestURL2 = "https://api.particle.io/v1/devices/" +deviceID + "/nb_blink?token=" + accessToken;
-			$.getJSON(requestURL2, function(json) {
-			document.getElementById("nb_blink").innerHTML = json.result;
-							 });
-				
-			document.getElementById("connectbutton").innerHTML = "GetVariables";
-		}
+		
 		
 		
 		
@@ -113,23 +142,32 @@
 	<form id="login-window">
 	  <div class="w-25 form-group p-3">
 		<label for="InputLogin">Login</label>
-		<input type="login" class="form-control" id="InputLogin" aria-describedby="InputLogin" placeholder="login" value="">
+		<input type="login" class="form-control" id="InputLogin" aria-describedby="InputLogin" placeholder="login" value="fabien.goy@gmail.com">
 		<label for="InputPassword">Password</label>
-		<input type="password" class="form-control" id="InputPassword" placeholder="Password" value="">
+		<input type="password" class="form-control" id="InputPassword" placeholder="Password" value="9hL3lDaVy9lU">
 	  </div>
 	</form>
 	<button type="submit" id="BoutonLogin" class="btn btn-primary" onclick="login()">Login</button>
 	
 	<br><br>
 
-	
-    <button id="connectbutton" onclick="GetVariables()">Connect</button>
-	
-	<h3>bAlarm: <span id="bAlarm"></h3><br>
-	<h3>nb_blink: <span id="nb_blink"></h3><br>
+
 	
 	<button id="ChauffageON" onclick="Chauffage(1)">AllumerChauffage</button>
 	<button id="ChauffageOFF" onclick="Chauffage(0)">EteindreChauffage</button>
+	
+	
+	<div class="card-deck" >
+	  <!--<div class="card text-white bg-info mb-3">
+		<div class="card-body">
+		  <h5 class="card-title">Card title</h5>
+		  <p class="card-text">This is a longer card with text</p>
+		  <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+		</div>
+	  </div>
+	-->
+	</div>
+	
 	
 </body>
 </html>
