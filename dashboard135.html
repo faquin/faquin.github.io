@@ -2,7 +2,7 @@
 
  <html>
 <head>
-	<title>Particle Login Example</title>
+	<title>Dashboard 135</title>
 </head>
 <body onload="loading()">
 	<script src="https://cdn.jsdelivr.net/npm/particle-api-js@8/dist/particle.min.js"></script>
@@ -16,18 +16,68 @@
 		var particle = new Particle();
 		var logged_in=false;
 		
+		var txtImport="", txtProd="", txtDivert="", txtConso="";
+		
 		function loading(){
 			if(token){	// on a déjà un token
 				document.getElementById('login-window').style.display="none";	// on cache la fenetre de login
 				document.getElementById("BoutonLogin").innerHTML = "Logout";
-				ListDevices();
+//				ListDevices();
+				UpdateVariables();
+				
+				//Get your devices events
+				particle.getEventStream({ deviceId: '28002d000847343232363230', auth: token }).then(function(stream) {
+				  stream.on('event', function(data) {
+					//console.log("Event: ", data);	
+					var re = /ct4:(-*\d*)/;	//"ct4:362"
+					var str = data.data;
+					txtProd = str.match(re);
+					//console.log("ct4: ", txtProd[1]);
+					document.getElementById("TxtProdW").innerHTML = "Prod="+txtProd[1]+"W";
+				  });
+				});
+				particle.getEventStream({ deviceId: 'e00fce68b92c3cf97750f326', auth: token }).then(function(stream) {
+				  stream.on('event', function(data) {
+					//console.log("Event: ", data);
+					var re = /ct1:(-*\d*),/;	//"ct1:56,vrms:23606,divert:0.000000"
+					var str = data.data;
+					txtImport = str.match(re);
+					//console.log("ct1: ", txtImport[1]);	
+					if(parseInt(txtImport[1], 10) < 0){
+						document.getElementById("txtImportW").innerHTML = "Export="+Math.abs(txtImport[1])+"W";
+						document.getElementById("classTxtImport").className="p-3 mb-2 bg-success text-white";
+					}
+					else{
+						document.getElementById("txtImportW").innerHTML = "Import="+txtImport[1]+"W";
+						document.getElementById("classTxtImport").className="p-3 mb-2 bg-danger text-white";
+					}
+					
+					txtConso = parseInt(txtImport[1], 10) + parseInt(txtProd[1], 10);
+					document.getElementById("txtConsoW").innerHTML = "Conso="+txtConso+"W";
+					//console.log("txtConso: ", txtConso);
+					
+					var re2 = /divert:(-*\d*)/;	//"ct1:56,vrms:23606,divert:0.000000"
+					txtDivert = str.match(re2);
+					//console.log("Divert: ", txtDivert[1]);
+					document.getElementById("TxtDivertW").innerHTML = "Divert="+txtDivert[1]+"W";
+					if(parseInt(txtDivert[1], 10) > 0)
+						document.getElementById("classTxtDivert").className="p-3 mb-2 bg-warning text-white";
+					else
+						document.getElementById("classTxtDivert").className="p-3 mb-2 bg-info text-white";
+					
+				  });
+				});
+				
 			}
+			
+			
+
+			
 		}
 		
 		//Delete accesstoken from LocalStorage, and reload page.
 		function logout() {
 			localStorage.removeItem("token");
-			var logged_in=false;
 			window.location.reload();
 		}
 		
@@ -42,17 +92,15 @@
 				token=data.body.access_token;
 				localStorage.setItem("token",token);
 				console.log(token);
-				ListDevices();
+//				ListDevices();
+//				UpdateVariables();
+				loading();
 			  },
 			  function (err) {
 				console.log('Could not log in.', err);
 			  }
 			);
 		
-			var logged_in=true;
-			document.getElementById('login-window').style.display="none";
-			document.getElementById("BoutonLogin").innerHTML = "Logout";
-			
 			}
 			else{
 				logout();
@@ -119,22 +167,48 @@
 		}
 	
 
-		
+		function UpdateVariables(){
+			particle.getVariable({ deviceId: '270043000447343232363230', name: 'bCmdChauffage', auth: token }).then(
+			function(data) {
+				document.getElementById("TxtCmdChauffage").innerHTML = "CmdChauffage="+data.body.result;
+			},
+			function(err) {
+				console.log('An error occurred while getting attrs:', err);
+				document.getElementById("TxtCmdChauffage").innerHTML = "Erreur lecture CmdChauffage";
+			});
+		}
 		
 		
 		
 		
 		function Chauffage(CmdChauffage) {
-			var fnPr = particle.callFunction({ deviceId: '270043000447343232363230', name: 'TestChauff', argument: toString(CmdChauffage), auth: token });
-
-			fnPr.then(
+			console.log("CmdChauffage=",CmdChauffage);
+			
+			var event_data;
+			if(CmdChauffage==1){
+				event_data="ON";
+				}
+			else event_data="OFF"
+			var publishEventPr = particle.publishEvent({ name: 'ActionChaudiere', data: event_data, auth: token });
+			publishEventPr.then(
 			  function(data) {
-				console.log('Chauffage=', data);
-			  }, function(err) {
-				console.log('Chauffage pas changé:', err);
-			  });
-			//var requestURL1 = "https://api.particle.io/v1/devices/" +deviceID + "/TestChauff/";
-			//$.post( requestURL1, { params: CmdChauffage, token: accessToken});
+				if (data.body.ok) { console.log("Event published succesfully") }
+				particle.getVariable({ deviceId: '270043000447343232363230', name: 'bCmdChauffage', auth: token }).then(
+					function(data) {
+						document.getElementById("TxtCmdChauffage").innerHTML = "CmdChauffage="+data.body.result;
+					},
+					function(err) {
+						console.log('An error occurred while getting attrs:', err);
+						document.getElementById("TxtCmdChauffage").innerHTML = "Erreur lecture CmdChauffage";
+					});
+					  },
+			  function(err) {
+				console.log("Failed to publish event: " + err)
+			  }
+			);
+			
+			
+			
 		}
 
 	</script>	
@@ -153,19 +227,73 @@
 
 
 	
-	<button id="ChauffageON" onclick="Chauffage(1)">AllumerChauffage</button>
-	<button id="ChauffageOFF" onclick="Chauffage(0)">EteindreChauffage</button>
-	
-	
 	<div class="card-deck" >
-	  <!--<div class="card text-white bg-info mb-3">
-		<div class="card-body">
-		  <h5 class="card-title">Card title</h5>
-		  <p class="card-text">This is a longer card with text</p>
-		  <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+
+	
+	
+		<div class="card text-white bg-info mb-3">
+			<div class="card-body">
+				<h5 class="card-title">chaudiere_9AYV</h5>
+				<div class="container">
+					<div class="row">
+						<div class="col-sm"><button type="button" class="btn btn-primary" onclick="Chauffage(1)">Allumer Chauffage()</button></div>
+						<div class="col-sm"><button type="button" class="btn btn-primary" onclick="Chauffage(0)">Arreter Chauffage()</button></div>
+						<div class="col-sm"><p id="TxtCmdChauffage"></p></div>
+					</div>
+				</div>
+				
+				<!--
+				<div class="container">
+					<div class="row">
+						<div class="col-sm">bAlarme</div>
+					</div>
+					<div class="row">
+						<div class="col-sm">nb_blink</div>
+					</div>
+				</div>
+				<div class="container">
+					<div class="row">
+						<div class="col-sm">
+							<input type="login" class="form-control" id="InputParam">
+						</div>
+						<div class="col-sm">
+							<button type="button" class="btn btn-primary" onclick="login()">TestPrise()</button>
+						</div>
+						<div class="col-sm">
+							<p>VALEUR</p>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm">
+							<button type="button" class="btn btn-primary">TestChauff()</button>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm">
+							<button type="button" class="btn btn-primary">UpdateDBPV()</button>
+						</div>
+					</div>
+				</div>
+				-->
+			</div>
 		</div>
-	  </div>
-	-->
+		
+		<div class="card text-white bg-info mb-3">
+			<div class="card-body">
+				<h5 class="card-title">EmonPower</h5>
+				<div class="container">
+					<div class="row">
+						<div class="col-sm"><div id="classTxtImport"><p id="txtImportW"></p></div></div>
+						<div class="col-sm"><p id="TxtProdW"></p></div>
+					</div>
+					<div class="row">
+						<div class="col-sm"><p id="txtConsoW"></p></div>
+						<div class="col-sm"><div id="classTxtDivert"><p id="TxtDivertW"></p></div></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
 	</div>
 	
 	
