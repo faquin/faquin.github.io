@@ -3,6 +3,7 @@
  <html>
 <head>
 	<title>Dashboard 135</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 </head>
 <body onload="loading()">
 	<script src="https://cdn.jsdelivr.net/npm/particle-api-js@8/dist/particle.min.js"></script>
@@ -227,13 +228,14 @@
 
 
 	
-	<div class="card-deck" >
-
+	<!--
+	<div class="card-deck w-100" >
+	-->
 	
 	
-		<div class="card text-white bg-info mb-3">
+		<div class="card text-white bg-info my-3" style="max-width: 50rem;">
+			<div class="card-header">chaudiere_9AYV</div>
 			<div class="card-body">
-				<h5 class="card-title">chaudiere_9AYV</h5>
 				<div class="container">
 					<div class="row">
 						<div class="col-sm"><button type="button" class="btn btn-primary" onclick="Chauffage(1)">Allumer Chauffage()</button></div>
@@ -241,46 +243,12 @@
 						<div class="col-sm"><p id="TxtCmdChauffage"></p></div>
 					</div>
 				</div>
-				
-				<!--
-				<div class="container">
-					<div class="row">
-						<div class="col-sm">bAlarme</div>
-					</div>
-					<div class="row">
-						<div class="col-sm">nb_blink</div>
-					</div>
-				</div>
-				<div class="container">
-					<div class="row">
-						<div class="col-sm">
-							<input type="login" class="form-control" id="InputParam">
-						</div>
-						<div class="col-sm">
-							<button type="button" class="btn btn-primary" onclick="login()">TestPrise()</button>
-						</div>
-						<div class="col-sm">
-							<p>VALEUR</p>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-sm">
-							<button type="button" class="btn btn-primary">TestChauff()</button>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-sm">
-							<button type="button" class="btn btn-primary">UpdateDBPV()</button>
-						</div>
-					</div>
-				</div>
-				-->
 			</div>
 		</div>
 		
-		<div class="card text-white bg-info mb-3">
+		<div class="card text-white bg-info my-3" style="max-width: 50rem;">
+			<div class="card-header">EmonPower</div>
 			<div class="card-body">
-				<h5 class="card-title">EmonPower</h5>
 				<div class="container">
 					<div class="row">
 						<div class="col-sm"><div id="classTxtImport"><p id="txtImportW"></p></div></div>
@@ -294,8 +262,9 @@
 			</div>
 		</div>
 		
+	<!--
 	</div>
-	
+	-->
 	
 </body>
 </html>
