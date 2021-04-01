@@ -37,6 +37,7 @@
 					document.getElementById("TxtProdW").innerHTML = "Prod="+txtProd[1]+"W";
 				  });
 				});
+				
 				particle.getEventStream({ deviceId: 'e00fce68b92c3cf97750f326', auth: token }).then(function(stream) {
 				  stream.on('event', function(data) {
 					//console.log("Event: ", data);
@@ -66,6 +67,19 @@
 					else
 						document.getElementById("classTxtDivert").className="p-3 mb-2 bg-info text-white";
 					
+				  });
+				});
+				
+				particle.getEventStream({ deviceId: 'e00fce68dd79f07fb2c34989', auth: token }).then(function(stream) {
+				  stream.on('event', function(data) {
+					//console.log(data.data);
+					txtYaourtiere = data.data;
+					if(isNaN(txtYaourtiere)){
+						document.getElementById("TxtStatusYaourtiere").innerHTML = "Status="+txtYaourtiere;
+					}
+					else{
+						document.getElementById("TxtTempYaourtiere").innerHTML = "Temperature="+txtYaourtiere+"°C";
+					}
 				  });
 				});
 				
@@ -257,6 +271,18 @@
 					<div class="row">
 						<div class="col-sm"><p id="txtConsoW"></p></div>
 						<div class="col-sm"><div id="classTxtDivert"><p id="TxtDivertW"></p></div></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="card text-white bg-info my-3" style="max-width: 50rem;">
+			<div class="card-header">Yaourtiere</div>
+			<div class="card-body">
+				<div class="container">
+					<div class="row">
+						<div class="col-sm"><p id="TxtTempYaourtiere"></p></div>
+						<div class="col-sm"><p id="TxtStatusYaourtiere"></p></div>
 					</div>
 				</div>
 			</div>
